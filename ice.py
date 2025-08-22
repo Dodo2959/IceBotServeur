@@ -1,8 +1,12 @@
+import os, json
+from dotenv import load_dotenv
 from operator import add
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 import time
+
+load_dotenv() 
 
 # Constantes
 SHEET_ID = "1BZuyJzJV1-KOUKwz60C-2tNHmu_uZ0pWxoGDkTGk7Bg"
@@ -20,7 +24,8 @@ TABS = {
 class GoogleSheet:
     def __init__(self):
         self.scopes = ['https://www.googleapis.com/auth/spreadsheets']
-        self.credentials = Credentials.from_service_account_file('key.json', scopes=self.scopes)
+        self.service_account_info = json.loads(os.getenv("GOOGLE_CREDENTIALS"))
+        self.credentials = Credentials.from_service_account_info(self.service_account_info, scopes=self.scopes)
         self.client = gspread.authorize(self.credentials)
         self.sheet = self.client.open_by_key(SHEET_ID)
 
@@ -199,4 +204,5 @@ class GoogleSheet:
                 ws.delete_rows(row_idx + 1)
                 
                 # Insérer à la nouvelle position
+
                 ws.insert_row(row_data, new_rank + 1)

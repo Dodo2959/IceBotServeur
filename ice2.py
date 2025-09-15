@@ -1478,8 +1478,9 @@ async def level_fact(interaction: discord.Interaction):
     await interaction.response.send_message(embed=embed, view=view)
 
 if __name__ == "__main__":
-    #keep_alive()
+    keep_alive()
     bot.run(token)
+
 
 
 

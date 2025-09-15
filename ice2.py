@@ -130,7 +130,7 @@ class LinkModal(discord.ui.Modal, title="Lien de complétion"):
             rank = google_s.get_level_rank(self.level_name)
             
             # Envoyer le message dans le salon des complétions
-            completions_channel = interaction.guild.get_channel(1395778676544507934)  # Remplacer par l'ID réel du salon
+            completions_channel = interaction.guild.get_channel(1376617343370657792)  # Remplacer par l'ID réel du salon
             if completions_channel:
                 await completions_channel.send(
                     f"🎉 Félicitations à **{self.player_name}** qui a fini **{self.level_name}** "
@@ -773,7 +773,7 @@ async def show_leaderboard(interaction: discord.Interaction):
 
 def in_admin_channel():
     async def predicate(interaction: discord.Interaction):
-        if interaction.channel_id != 1416863547559903242:
+        if interaction.channel_id != 1373254018805141624:
             await interaction.response.send_message(
                 "❌ Cette commande ne peut être utilisée que dans le salon <#1373254018805141624>",
                 ephemeral=True
@@ -1480,6 +1480,7 @@ async def level_fact(interaction: discord.Interaction):
 if __name__ == "__main__":
     keep_alive()
     bot.run(token)
+
 
 
 

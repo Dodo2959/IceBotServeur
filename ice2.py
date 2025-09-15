@@ -1,6 +1,6 @@
 import discord 
 import os
-#from keep_alive import keep_alive
+from keep_alive import keep_alive
 from dotenv import load_dotenv
 import asyncio
 import random
@@ -1480,6 +1480,7 @@ async def level_fact(interaction: discord.Interaction):
 if __name__ == "__main__":
     keep_alive()
     bot.run(token)
+
 
 
 

@@ -1264,52 +1264,93 @@ class ProfileView(discord.ui.View):
         await interaction.response.edit_message(view=self)
 
 async def show_profile(interaction: discord.Interaction, player_name):
-    """Affiche le profil d'un joueur"""
-    await interaction.response.defer(thinking=True)
+   await interaction.response.defer()
 
-    # Récupérer les niveaux complétés
-    completions = google_s.get_player_completions(player_name)
-    
-    # Récupérer le pseudo Discord depuis la feuille infoplayer
-    infoplayer_ws = google_s.sheet.worksheet("infoplayer")
-    players = infoplayer_ws.row_values(1)  # Ligne des noms de joueurs
-    discord_names = infoplayer_ws.row_values(2)  # Ligne des pseudos Discord
-    
-    try:
-        idx = players.index(player_name)
-        discord_name = discord_names[idx].lower()
-        
-        # Chercher le membre correspondant sur le serveur
-        member = None
-        for guild_member in interaction.guild.members:
-            if guild_member.name.lower() == discord_name:
-                member = guild_member
-                break
-    except (ValueError, IndexError):
-        member = None
+        if interaction.data["values"][0] in ["prev_page", "next_page"]:
+            new_page = self.children[0].page - 1 if interaction.data["values"][0] == "prev_page" else self.children[0].page + 1
+            self.clear_items()
+            new_select = PlayerSelect(self, self.children[0].all_players, page=new_page)
+            new_select.callback = self.select_callback
+            self.add_item(new_select)
+            await interaction.edit_original_response(view=self)
+        else:
+            player_name = interaction.data["values"][0]
+            discord_tag = self.gs.get_discord_tag_from_name(player_name)
+            
+            # Récupérer toutes les statistiques
+            rank = self.gs.get_player_rank(player_name)
+            points = self.gs.get_player_points(player_name)  # Nouveau: récupérer les points du leaderboard
+            avg_enjoyment = self.gs.get_player_average_enjoyment(player_name)
+            avg_rating = self.gs.get_player_average_rating(player_name)
+            fav_level, fav_enjoyment = self.gs.get_player_favorite_level(player_name)
+            least_fav_level, least_fav_enjoyment = self.gs.get_player_least_favorite_level(player_name)
+            best_rated_level, best_rating = self.gs.get_player_best_rated_level(player_name)
+            worst_rated_level, worst_rating = self.gs.get_player_worst_rated_level(player_name)
 
-    # Créer l'embed
-    if not completions:
-        content = "🚫 Ce joueur n'a pas encore terminé de niveau."
-    else:
-        content = f"🎮 __Niveaux complétés par {player_name} :__\n\n"
-        for i, level in enumerate(completions, 1):
-            content += f"`{i:02d}.` **{level}** ✅\n"
-        
-        total = len(completions)
-        content += f"\n📊 Total: **{total}** niveau{'x' if total > 1 else ''}"
+            # Créer l'embed avec l'avatar
+            embed = discord.Embed(
+                title=f"📊 Profil de {player_name}", 
+                color=0x5865f2  # Couleur bleue Discord
+            )
+            
+            # Avatar et footer
+            if discord_tag:
+                try:
+                    member = None
+                    for m in interaction.guild.members:
+                        if (m.name.lower() == discord_tag.lower() or 
+                            (m.nick and m.nick.lower() == discord_tag.lower())):
+                            member = m
+                            break
+                    
+                    if member:
+                        embed.set_thumbnail(url=member.display_avatar.url)
+                except Exception as e:
+                    print(f"Erreur lors de la recherche du membre: {e}")
 
-    embed = discord.Embed(
-        title=f"Liste des niveaux de {player_name}",
-        description=content,
-        color=discord.Color.green()
-    )
+            # Statistiques Générales
+            embed.add_field(name="Statistiques Générales", value=(
+                f"👑 Rang: #{rank}\n"
+                f"🏆 Points: {points:.2f}"
+            ), inline=False)
 
-    # Ajouter l'avatar du joueur s'il est trouvé
-    if member and member.avatar:
-        embed.set_thumbnail(url=member.avatar.url)
+            # Moyennes avec barres stylisées
+            enj_progress = "▰" * int(avg_enjoyment/10) + "▱" * (10-int(avg_enjoyment/10))
+            rat_progress = "▰" * int(avg_rating/10) + "▱" * (10-int(avg_rating/10))
+            embed.add_field(
+                name="Moyenne Enjoyment",
+                value=f"{avg_enjoyment:.1f}/100 {enj_progress}",
+                inline=False
+            )
+            embed.add_field(
+                name="Moyenne Rating",
+                value=f"{avg_rating:.1f}/100 {rat_progress}",
+                inline=False
+            )
 
-    await interaction.followup.send(embed=embed)
+            # Section Enjoyment
+            enjoyment_text = (
+                f"❤️ Plus aimé\n"
+                f"{fav_level}\n"
+                f"{fav_enjoyment:.1f}/100\n\n"
+                f"💔 Moins aimé\n"
+                f"{least_fav_level}\n"
+                f"{least_fav_enjoyment:.1f}/100"
+            )
+            embed.add_field(name="Enjoyment", value=enjoyment_text, inline=True)
+
+            # Section Rating
+            rating_text = (
+                f"⭐ Meilleur rating\n"
+                f"{best_rated_level}\n"
+                f"{best_rating:.1f}/100\n\n"
+                f"⚠️ Pire rating\n"
+                f"{worst_rated_level}\n"
+                f"{worst_rating:.1f}/100"
+            )
+            embed.add_field(name="Rating", value=rating_text, inline=True)
+
+            await interaction.followup.send(embed=embed, view=None)
 
 @bot.tree.command(name="random", description="Suggère un niveau aléatoire de la liste")
 async def random_level(interaction: discord.Interaction):
@@ -1480,6 +1521,7 @@ async def level_fact(interaction: discord.Interaction):
 if __name__ == "__main__":
     keep_alive()
     bot.run(token)
+
 
 
 

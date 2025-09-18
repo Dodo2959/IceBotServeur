@@ -1201,7 +1201,7 @@ class EnjoymentSelectView(discord.ui.View):
         modal = EnjoymentOnlyModal(self.player_name, interaction.data["values"][0])
         await interaction.response.send_modal(modal)
 
-@bot.tree.command(name="profile", description="Affiche les statistiques d'un joueur")
+'''@bot.tree.command(name="profile", description="Affiche les statistiques d'un joueur")
 async def profile(interaction: discord.Interaction):
     # Récupérer la liste des joueurs
     players = google_s.get_players()
@@ -1350,7 +1350,7 @@ async def show_profile(interaction: discord.Interaction, player_name):
         )
         embed.add_field(name="Rating", value=rating_text, inline=True)
 
-        await interaction.followup.send(embed=embed, view=None)
+        await interaction.followup.send(embed=embed, view=None)'''
 
 @bot.tree.command(name="random", description="Suggère un niveau aléatoire de la liste")
 async def random_level(interaction: discord.Interaction):
@@ -1521,6 +1521,7 @@ async def level_fact(interaction: discord.Interaction):
 if __name__ == "__main__":
     keep_alive()
     bot.run(token)
+
 
 
 

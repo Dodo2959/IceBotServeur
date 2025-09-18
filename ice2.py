@@ -1234,20 +1234,6 @@ async def add_rating(interaction: discord.Interaction):
     )
     view = RatingSelectView(levels, player_name)
     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-@bot.tree.command(name="level_fact", description="Obtiens des statistiques sur un niveau")
-async def level_fact(interaction: discord.Interaction):
-    levels = google_s.get_levels()
-    if not levels:
-        await interaction.response.send_message("❌ Pas de niveau disponible.", ephemeral=True)
-        return
-
-    embed = discord.Embed(
-        title="Statistiques de Niveau",
-        description="Voulez-vous voir les statistiques d'un niveau aléatoire ou choisir un niveau spécifique ?",
-        color=discord.Color.blue()
-    )
-    view = LevelStatsChoiceView(levels)
-    await interaction.response.send_message(embed=embed, view=view)
 
 @bot.tree.command(name="enjoyment", description="Ajoute ou modifie l'enjoyment d'un niveau")
 async def add_enjoyment(interaction: discord.Interaction):
@@ -1603,6 +1589,7 @@ async def level_fact(interaction: discord.Interaction):
 if __name__ == "__main__":
     keep_alive()
     bot.run(token)
+
 
 
 

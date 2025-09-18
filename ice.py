@@ -9,7 +9,7 @@ import time
 load_dotenv() 
 
 # Constante
-SHEET_ID = "1xyQKMbJ0Sv1EZajQMXAOQOG49o-oyPYfXUlUy65Sr7k"
+SHEET_ID = "1BZuyJzJV1-KOUKwz60C-2tNHmu_uZ0pWxoGDkTGk7Bg"
 TABS = {
     "MAIN": "list0",
     "ARCHIVE": "archive",
@@ -515,5 +515,6 @@ class GoogleSheet:
             return worst_level, min_rating
         except ValueError:
             return "Aucun", 0
+
 
 

@@ -1201,6 +1201,88 @@ class EnjoymentSelectView(discord.ui.View):
         modal = EnjoymentOnlyModal(self.player_name, interaction.data["values"][0])
         await interaction.response.send_modal(modal)
 
+@bot.tree.command(name="rating", description="Ajoute ou modifie le rating d'un niveau")
+async def add_rating(interaction: discord.Interaction):
+
+    discord_name = interaction.user.name.lower()
+
+
+    player_name = google_s.get_player_from_discord(discord_name)
+
+    if player_name is None:
+        await interaction.response.send_message(
+            "❌ Vous n'êtes pas enregistré dans la liste des joueurs. "
+            "Contactez un modérateur pour être ajouté.",
+            ephemeral=True
+        )
+        return
+
+
+    levels = google_s.get_levels_without_rating(player_name)
+
+    if not levels:
+        await interaction.response.send_message(
+            "✅ Vous avez déjà noté le rating de tous les niveaux !",
+            ephemeral=True
+        )
+        return
+
+    embed = discord.Embed(
+        title="⭐ Ajouter un Rating",
+        description="Sélectionnez le niveau auquel vous voulez donner un rating",
+        color=discord.Color.blue()
+    )
+    view = RatingSelectView(levels, player_name)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+@bot.tree.command(name="level_fact", description="Obtiens des statistiques sur un niveau")
+async def level_fact(interaction: discord.Interaction):
+    levels = google_s.get_levels()
+    if not levels:
+        await interaction.response.send_message("❌ Pas de niveau disponible.", ephemeral=True)
+        return
+
+    embed = discord.Embed(
+        title="Statistiques de Niveau",
+        description="Voulez-vous voir les statistiques d'un niveau aléatoire ou choisir un niveau spécifique ?",
+        color=discord.Color.blue()
+    )
+    view = LevelStatsChoiceView(levels)
+    await interaction.response.send_message(embed=embed, view=view)
+
+@bot.tree.command(name="enjoyment", description="Ajoute ou modifie l'enjoyment d'un niveau")
+async def add_enjoyment(interaction: discord.Interaction):
+    
+    discord_name = interaction.user.name.lower()
+    
+
+    player_name = google_s.get_player_from_discord(discord_name)
+    
+    if player_name is None:
+        await interaction.response.send_message(
+            "❌ Vous n'êtes pas enregistré dans la liste des joueurs. "
+            "Contactez un modérateur pour être ajouté.",
+            ephemeral=True
+        )
+        return
+
+
+    levels = google_s.get_levels_without_enjoyment(player_name)
+    
+    if not levels:
+        await interaction.response.send_message(
+            "✅ Vous avez déjà noté l'enjoyment de tous les niveaux !",
+            ephemeral=True
+        )
+        return
+
+    embed = discord.Embed(
+        title="💫 Ajouter un Enjoyment",
+        description="Sélectionnez le niveau auquel vous voulez donner un enjoyment",
+        color=discord.Color.blue()
+    )
+    view = EnjoymentSelectView(levels, player_name)
+    await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
+
 '''@bot.tree.command(name="profile", description="Affiche les statistiques d'un joueur")
 async def profile(interaction: discord.Interaction):
     # Récupérer la liste des joueurs
@@ -1521,6 +1603,7 @@ async def level_fact(interaction: discord.Interaction):
 if __name__ == "__main__":
     keep_alive()
     bot.run(token)
+
 
 
 

@@ -14,7 +14,7 @@ token = os.getenv('DISCORD_TOKEN')
 
 i = discord.Intents.default()
 i.message_content = True
-i.members = True  # Activer explicitement l'intent members.
+i.members = True  # Activer explicitement l'intent members
 bot = commands.Bot(command_prefix='!', intents=i)
 
 google_s = GoogleSheet()
@@ -1589,6 +1589,7 @@ async def level_fact(interaction: discord.Interaction):
 if __name__ == "__main__":
     keep_alive()
     bot.run(token)
+
 
 
 
